@@ -5,67 +5,67 @@
 ---
 
 <a name="使用指南-中文"></a>
-## 📖 使用指南 (中文)
+## 📖 Better xCloud App 使用指南 (中文)
 
-### 📌 准备工作
-1. 在浏览器（Chrome / Edge / Kiwi / Safari 等）中安装 **Tampermonkey** 插件。
-2. 安装并启用本脚本。
-3. 打开 [Xbox Cloud Gaming](https://www.xbox.com/play) 网站并启动任意游戏。
+### 📌 操作步骤
 
-### ⚙️ 设置与操作说明
+1. **复制脚本代码**：复制代码库中的脚本全文（`*.user.js`）。
+2. **打开 Better xCloud**：启动 Better xCloud 应用。
+3. **进入设置界面**：点击主界面的 **Settings（设置）**。
+4. **添加自定义脚本**：
+   * 找到 **Custom Script（自定义脚本）** 选项并点击进入。
+   * 将刚才复制的代码**粘贴**到文本框中。
+   * 点击 **Save（保存）**。
 
-* **呼出/隐藏设置菜单**
-  点击屏幕上的 **HUD 悬浮图标** 即可打开或关闭主控制面板。
+   ![设置图解](在这里替换你的图片链接)
 
-* **自定义按键布局（位置、大小与透明度）**
-  1. 在控制面板中开启 **“编辑模式 (Edit Mode)”**。
-  2. 直接拖拽任意虚拟按键至你习惯的位置。
-  3. 选中对应按键，滑动滑块调节 **按键大小 (Size)** 与 **不透明度 (Opacity)**。
-  4. 完成后点击 **保存布局 (Save)**。
+5. **重启应用**：彻底退出 Better xCloud 应用，然后重新打开即可生效。
 
-* **摇杆与触控板模式切换**
-  * 进入 **控件设置 (Control Settings)**。
-  * 可自由将左/右摇杆切换为 **固定摇杆** 或 **全屏触控板模式 (Touchpad Mode)**。
-  * 滑动调节 **镜头灵敏度 (Sensitivity)** 以获得顺滑的视角体验。
+---
 
-* **组合键设置 (Combo Keys)**
-  1. 点击 **“添加组合键 (Add Combo)”**。
-  2. 选择你希望一键触发的多键组合（如 `LB + RB`）。
-  3. 将生成的组合键放置在屏幕合适位置即可。
+### ⚙️ HUD 界面功能与设置说明
 
-* **画面拉伸修正 (Stretch Fix)**
-  在 **图形设置 (Display Settings)** 中勾选 **“拉伸修正 (Aspect Ratio Fix)”**，即可消除黑边或适配带状异形屏。
+* **呼出/隐藏设置菜单**：进入游戏后，点击屏幕上的 **HUD 悬浮图标** 即可打开面板。
+* **自定义按键布局**：
+  * 在控制面板中开启 **Edit Mode（编辑模式）**。
+  * 自由**拖拽按键**到合适位置，调整按键 **大小 (Size)** 与 **透明度 (Opacity)**。
+
+  ![HUD 设置界面](在这里替换你的图片链接)
+
+* **摇杆与触控板模式**：支持将摇杆切换为 **Touchpad Mode（触控板模式）**，并可自由调节**镜头灵敏度**。
+* **组合键 (Combo Keys)**：点击 **Add Combo** 自定义一键触发的多键组合（如 `LB + RB`）。
+* **画面拉伸修正**：勾选 **Aspect Ratio Fix** 自动适配不同屏幕比例。
 
 ---
 
 <a name="user-guide-english"></a>
-## 📖 User Guide (English)
+## 📖 User Guide for Better xCloud App (English)
 
-### 📌 Prerequisites
-1. Install the **Tampermonkey** extension on your supported browser (Chrome, Edge, Kiwi, Safari, etc.).
-2. Install and enable this script.
-3. Open [Xbox Cloud Gaming](https://www.xbox.com/play) and launch any game.
+### 📌 How to Install & Setup
 
-### ⚙️ Configuration & Controls
+1. **Copy Script Code**: Copy the full code from the script file (`*.user.js`).
+2. **Open Better xCloud**: Launch the Better xCloud app on your device.
+3. **Go to Settings**: Tap **Settings** on the main screen.
+4. **Add Custom Script**:
+   * Locate and tap **Custom Script**.
+   * **Paste** the copied script code into the text box.
+   * Tap **Save**.
 
-* **Open / Close Settings Menu**
-  Tap the **HUD floating icon** on the screen to toggle the main control panel.
+   ![Setup Screenshot](https://cdn.phototourl.com/free/2026-08-28-2f879047-c424-4adc-b7d8-43df8b04d325.jpg)
 
-* **Customize Key Layout (Position, Size & Opacity)**
-  1. Turn on **"Edit Mode"** in the panel.
-  2. Drag and drop any virtual button to your desired position.
-  3. Select a button and adjust the sliders for **Size** and **Opacity**.
-  4. Tap **Save** once you are done.
+5. **Restart the App**: Fully close/exit the Better xCloud app and reopen it to apply the changes.
 
-* **Joystick & Touchpad Mode Switching**
-  * Go to **Control Settings**.
-  * Switch Left/Right Joysticks between **Fixed Joysticks** and **Full-screen Touchpad Mode**.
-  * Adjust the **Sensitivity** slider for smooth camera control.
+---
 
-* **Combo Keys Setup**
-  1. Click **"Add Combo"**.
-  2. Select the multiple inputs you want to execute simultaneously (e.g., `LB + RB`).
-  3. Place the new combo button anywhere on your screen.
+### ⚙️ HUD Features & Control Guide
 
-* **Aspect Ratio Stretch Fix**
-  Check **"Aspect Ratio Fix"** under **Display Settings** to fit ultra-wide screens or eliminate unwanted borders.
+* **Open / Close Settings Panel**: Tap the **HUD floating icon** on your screen inside any game.
+* **Customize Layout**:
+  * Enable **Edit Mode** in the panel.
+  * **Drag and drop** buttons to your preferred positions, and adjust **Size** and **Opacity** sliders.
+
+  ![HUD Controls Screenshot](Replace_Your_Image_URL_Here)
+
+* **Joystick & Touchpad Modes**: Toggle joysticks to **Touchpad Mode** and fine-tune camera **Sensitivity**.
+* **Combo Keys Setup**: Tap **Add Combo** to bind multi-button actions (e.g., `LB + RB`) to a single touch button.
+* **Aspect Ratio Stretch Fix**: Enable **Aspect Ratio Fix** to adjust for custom screen dimensions.
