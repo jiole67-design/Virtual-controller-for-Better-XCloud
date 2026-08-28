@@ -1,0 +1,1548 @@
+// ==UserScript==
+// @name         Universal Touch HUD Ultimate (LS Stick Fix + Aspect Ratio Fix)
+// @namespace    universal-touch-hud
+// @version      9.5.2
+// @description  Universal Touch HUD: Double Click Setting Icon, Long-press Sliders, Screen Aspect Stretch Fix
+// @match        https://www.xbox.com/*
+// @match        https://xbox.com/*
+// @match        https://www.xbox.com/play/*
+// @match        https://xbox.com/play/*
+// @run-at       document-start
+// @grant        none
+// ==/UserScript==
+
+(() => {
+
+'use strict';
+
+/* ============================================================
+   CONFIG & I18N
+============================================================ */
+
+const CFG = {
+    STORAGE: 'UNIVERSAL_TOUCH_HUD_892',
+    GAME_PROFILES: 'UNIVERSAL_TOUCH_HUD_GAME_PROFILES',
+    DEADZONE: 0.08,
+    DEFAULT_CAMERA_X: 0.115,
+    DEFAULT_CAMERA_Y: 0.100,
+    DEFAULT_CAMERA_BOOST: 1.8,
+    DEFAULT_STICK_SIZE: 128,
+    DEFAULT_STICK_OPACITY: 0.55
+};
+
+const I18N = {
+    zh: {
+        title: "Universal Touch HUD",
+        language: "UI 语言",
+        shareSection: "键位配置导入 / 导出（分享给好友）",
+        sharePlaceholder: "在框内粘贴分享码，或点击下方按钮导出当前配置...",
+        exportBtn: "导出并复制配置",
+        importBtn: "导入此配置",
+        shareDefaultStatus: "你可以生成配置代码发送给其他使用此脚本的玩家",
+        shareExportSuccessClipboard: "✅ 配置代码已自动复制到剪贴板！",
+        shareExportSuccessManual: "✅ 配置已生成在输入框中，请手动全选复制。",
+        shareImportSuccess: "🎉 配置导入成功！",
+        shareImportFail: "导入失败：配置代码无效！",
+        sharePasteAlert: "请先粘贴配置代码！",
+        
+        profileSection: "本地游戏预设列表",
+        profileName: "预设名称",
+        profileAction: "保存 / 读取",
+        profilePlaceholder: "例如 NBA 2K24",
+        profileSaveBtn: "保存预设",
+        profileLoadBtn: "读取预设",
+        profileDefaultStatus: "输入名称后可将当前键位另存为本地预设",
+        profileNoList: "暂无已保存预设",
+        profileLoad: "读取",
+        profileDelete: "删除",
+        profileSaveAlert: "请先输入预设名称",
+        profileSavedStatus: (name) => `已保存「${name}」的专属键位`,
+        profileNotFound: (name) => `找不到「${name}」的键位配置`,
+        profileLoadedStatus: (name) => `已读取「${name}」的专属键位`,
+        profileConfirmDelete: (name) => `确定删除「${name}」的键位配置吗？`,
+
+        rsSection: "RS 右摇杆模式",
+        rsCurrent: "当前 RS 模式",
+        rsModeStick: "虚拟摇杆 (Stick)",
+        rsModeTouchpad: "Touchpad (右半屏触控)",
+        rsToggleBtn: "切换 RS 模式 (摇杆 / 触摸板)",
+
+        camX: "横向视角灵敏度",
+        camY: "纵向视角灵敏度",
+        camBoost: "视角加速",
+
+        comboSection: "Combo 组合键设置",
+        comboTitle: "Combo 组合键",
+        comboMultiSelect: "多选",
+        comboDeleteBtn: "删除这个 Combo",
+        comboAddBtn: "+ 增加 Combo",
+        newComboDefaultName: "新 Combo",
+
+        resetBtn: "重置位置",
+        saveBtn: "保存设置",
+        closeBtn: "关闭 UI",
+        resetConfirm: "确定重置全部按键位置、大小吗？",
+
+        adjustTitle: "快速调整按键属性",
+        adjustName: "按键显示名称",
+        adjustIcon: "图标 URL / Base64",
+        adjustSize: "按键大小 (Size)",
+        adjustOpacity: "透明度 (Opacity)",
+        adjustConfirm: "确定并保存"
+    },
+    en: {
+        title: "Universal Touch HUD",
+        language: "UI Language",
+        shareSection: "Import / Export Configuration",
+        sharePlaceholder: "Paste config code here...",
+        exportBtn: "Export Code",
+        importBtn: "Import Code",
+        shareDefaultStatus: "Generate config code to share layout",
+        shareExportSuccessClipboard: "✅ Config code copied!",
+        shareExportSuccessManual: "✅ Config generated in text area.",
+        shareImportSuccess: "🎉 Config imported successfully!",
+        shareImportFail: "Import failed: Invalid code!",
+        sharePasteAlert: "Please paste a config code first!",
+        
+        profileSection: "Local Game Profiles",
+        profileName: "Profile Name",
+        profileAction: "Save / Load",
+        profilePlaceholder: "e.g. NBA 2K24",
+        profileSaveBtn: "Save Profile",
+        profileLoadBtn: "Load Profile",
+        profileDefaultStatus: "Save current layout as local profile",
+        profileNoList: "No saved profiles found",
+        profileLoad: "Load",
+        profileDelete: "Delete",
+        profileSaveAlert: "Please enter a profile name first",
+        profileSavedStatus: (name) => `Saved profile: "${name}"`,
+        profileNotFound: (name) => `Profile "${name}" not found`,
+        profileLoadedStatus: (name) => `Loaded profile: "${name}"`,
+        profileConfirmDelete: (name) => `Delete profile "${name}"?`,
+
+        rsSection: "RS Right Stick Mode",
+        rsCurrent: "Current RS Mode",
+        rsModeStick: "Virtual Stick",
+        rsModeTouchpad: "Touchpad (Right Screen)",
+        rsToggleBtn: "Toggle RS Mode",
+
+        camX: "Horizontal Sensitivity",
+        camY: "Vertical Sensitivity",
+        camBoost: "Camera Acceleration",
+
+        comboSection: "Combo Keys Settings",
+        comboTitle: "Combo Key",
+        comboMultiSelect: "Multi-select",
+        comboDeleteBtn: "Delete Combo",
+        comboAddBtn: "+ Add Combo",
+        newComboDefaultName: "New Combo",
+
+        resetBtn: "Reset Layout",
+        saveBtn: "Save Settings",
+        closeBtn: "Close UI",
+        resetConfirm: "Are you sure you want to reset layout?",
+
+        adjustTitle: "Quick Adjust Button",
+        adjustName: "Display Name",
+        adjustIcon: "Icon URL / Base64",
+        adjustSize: "Size",
+        adjustOpacity: "Opacity",
+        adjustConfirm: "Confirm & Save"
+    }
+};
+
+const BUTTONS = {
+    rt: { index: 7, name: 'RT' },
+    lt: { index: 6, name: 'LT' },
+    rb: { index: 5, name: 'RB' },
+    lb: { index: 4, name: 'LB' },
+    a: { index: 0, name: 'A' },
+    b: { index: 1, name: 'B' },
+    x: { index: 2, name: 'X' },
+    y: { index: 3, name: 'Y' },
+    ls: { index: 10, name: 'LS' },
+    rs: { index: 11, name: 'RS' },
+    back: { index: 8, name: 'BACK' },
+    start: { index: 9, name: 'START' },
+    up: { index: 12, name: 'D-UP' },
+    down: { index: 13, name: 'D-DOWN' },
+    left: { index: 14, name: 'D-LEFT' },
+    right: { index: 15, name: 'D-RIGHT' },
+    'ls_up': { type: 'stick', stick: 'ls', axis: 'Y', val: -1, name: 'LS-Up' },
+    'ls_down': { type: 'stick', stick: 'ls', axis: 'Y', val: 1, name: 'LS-Down' },
+    'ls_left': { type: 'stick', stick: 'ls', axis: 'X', val: -1, name: 'LS-Left' },
+    'ls_right': { type: 'stick', stick: 'ls', axis: 'X', val: 1, name: 'LS-Right' },
+    'rs_up': { type: 'stick', stick: 'rs', axis: 'Y', val: -1, name: 'RS-Up' },
+    'rs_down': { type: 'stick', stick: 'rs', axis: 'Y', val: 1, name: 'RS-Down' },
+    'rs_left': { type: 'stick', stick: 'rs', axis: 'X', val: -1, name: 'RS-Left' },
+    'rs_right': { type: 'stick', stick: 'rs', axis: 'X', val: 1, name: 'RS-Right' }
+};
+
+const DEFAULT_LAYOUT = {
+    rt: { x: 91, y: 68, size: 72, opacity: .62 },
+    lt: { x: 78, y: 68, size: 68, opacity: .62 },
+    rb: { x: 91, y: 52, size: 70, opacity: .62 },
+    lb: { x: 9, y: 10, size: 70, opacity: .62 },
+    a: { x: 84, y: 80, size: 66, opacity: .62 },
+    b: { x: 92, y: 38, size: 66, opacity: .62 },
+    x: { x: 78, y: 43, size: 66, opacity: .62 },
+    y: { x: 85, y: 26, size: 66, opacity: .62 },
+    ls: { x: 12, y: 65, size: 58, opacity: .62 },
+    rs: { x: 76, y: 65, size: 58, opacity: .62 },
+    ls_stick: { x: 19, y: 79, size: 128, opacity: .55 },
+    rs_stick: { x: 69, y: 79, size: 128, opacity: .55 },
+    back: { x: 45, y: 8, size: 46, opacity: .50 },
+    start: { x: 55, y: 8, size: 46, opacity: .50 },
+    up: { x: 30, y: 45, size: 54, opacity: .58 },
+    down: { x: 30, y: 63, size: 54, opacity: .58 },
+    left: { x: 22, y: 54, size: 54, opacity: .58 },
+    right: { x: 38, y: 54, size: 54, opacity: .58 }
+};
+
+const DEFAULT_COMBOS = [
+    { id: 'combo_rs_up', name: 'RS Up', keys: ['rs_up'], x: 60, y: 72, size: 62, opacity: .60 }
+];
+
+const state = {
+    buttons: new Array(16).fill(false),
+    axes: [0, 0, 0, 0],
+    leftX: 0,
+    leftY: 0,
+    rightX: 0,
+    rightY: 0,
+    comboLeftX: 0,
+    comboLeftY: 0,
+    comboRightX: 0,
+    comboRightY: 0,
+    cameraX: 0,
+    cameraY: 0,
+    cameraPointer: null,
+    cameraLastX: null,
+    cameraLastY: null,
+    lsTouchId: null,
+    rsTouchId: null,
+    rsTouchPointer: null,
+    dragging: false,
+    dragTarget: null,
+    dragPointer: null,
+    dragOffsetX: 0,
+    dragOffsetY: 0,
+    panel: false,
+    inputMode: false
+};
+
+let settings = {
+    lang: (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en',
+    layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
+    names: {},
+    icons: {},
+    combos: JSON.parse(JSON.stringify(DEFAULT_COMBOS)),
+    cameraX: CFG.DEFAULT_CAMERA_X,
+    cameraY: CFG.DEFAULT_CAMERA_Y,
+    cameraBoost: CFG.DEFAULT_CAMERA_BOOST,
+    dragEnabled: false,
+    rsMode: 'stick'
+};
+
+let gameProfiles = {};
+
+function t(key, ...args){
+    const langDict = I18N[settings.lang] || I18N.en;
+    const val = langDict[key] || I18N.en[key] || key;
+    return typeof val === 'function' ? val(...args) : val;
+}
+
+function loadSettings(){
+    try{
+        const raw = localStorage.getItem(CFG.STORAGE);
+        if(raw){
+            const data = JSON.parse(raw);
+            if(data.lang && (data.lang === 'zh' || data.lang === 'en')) settings.lang = data.lang;
+            if(data.layout){
+                Object.keys(DEFAULT_LAYOUT).forEach(id => {
+                    if(data.layout[id]) settings.layout[id] = { ...settings.layout[id], ...data.layout[id] };
+                });
+            }
+            if(data.names) settings.names = { ...data.names };
+            if(data.icons) settings.icons = { ...data.icons };
+            if(Array.isArray(data.combos)) settings.combos = data.combos;
+            if(typeof data.cameraX === 'number') settings.cameraX = data.cameraX;
+            if(typeof data.cameraY === 'number') settings.cameraY = data.cameraY;
+            if(typeof data.cameraBoost === 'number') settings.cameraBoost = data.cameraBoost;
+            if(data.rsMode) settings.rsMode = data.rsMode;
+        }
+    } catch(e){ console.warn('[Universal HUD] Load failed', e); }
+}
+
+function saveSettings(){
+    try{ localStorage.setItem(CFG.STORAGE, JSON.stringify(settings)); } catch(e){}
+}
+
+function loadGameProfiles(){
+    try{
+        const raw = localStorage.getItem(CFG.GAME_PROFILES);
+        if(raw) gameProfiles = JSON.parse(raw);
+    } catch(e){ gameProfiles = {}; }
+}
+
+function saveGameProfiles(){
+    try{ localStorage.setItem(CFG.GAME_PROFILES, JSON.stringify(gameProfiles)); } catch(e){}
+}
+
+function createProfileSnapshot(){
+    return {
+        lang: settings.lang,
+        layout: JSON.parse(JSON.stringify(settings.layout)),
+        names: JSON.parse(JSON.stringify(settings.names)),
+        icons: JSON.parse(JSON.stringify(settings.icons)),
+        combos: JSON.parse(JSON.stringify(settings.combos)),
+        cameraX: settings.cameraX,
+        cameraY: settings.cameraY,
+        cameraBoost: settings.cameraBoost,
+        rsMode: settings.rsMode
+    };
+}
+
+function applyProfile(profile){
+    if(!profile) return;
+    if(profile.lang && (profile.lang === 'zh' || profile.lang === 'en')) settings.lang = profile.lang;
+    if(profile.layout){
+        Object.keys(DEFAULT_LAYOUT).forEach(id => {
+            if(profile.layout[id]) settings.layout[id] = { ...settings.layout[id], ...profile.layout[id] };
+        });
+    }
+    if(profile.names) settings.names = { ...profile.names };
+    if(profile.icons) settings.icons = { ...profile.icons };
+    if(Array.isArray(profile.combos)) settings.combos = JSON.parse(JSON.stringify(profile.combos));
+    if(typeof profile.cameraX === 'number') settings.cameraX = profile.cameraX;
+    if(typeof profile.cameraY === 'number') settings.cameraY = profile.cameraY;
+    if(typeof profile.cameraBoost === 'number') settings.cameraBoost = profile.cameraBoost;
+    if(profile.rsMode) settings.rsMode = profile.rsMode;
+    saveSettings();
+}
+
+function refreshHUD(){
+    Object.keys(BUTTONS).forEach(id => {
+        if(BUTTONS[id].type) return;
+        const el = document.getElementById(`rb-${id}`);
+        if(!el) return;
+        applyLayout(el, id);
+        updateButtonLabel(id);
+    });
+
+    const lsStick = document.getElementById('rb-ls-stick');
+    if(lsStick) applyLayout(lsStick, 'ls_stick');
+
+    const rsStick = document.getElementById('rb-rs-stick');
+    if(rsStick) applyLayout(rsStick, 'rs_stick');
+
+    setRSMode(settings.rsMode || 'stick');
+
+    document.querySelectorAll('.rb-combo').forEach(el => {
+        const combo = settings.combos.find(c => c.id === el.dataset.comboId);
+        if(combo){
+            el.style.left = `${combo.x}%`;
+            el.style.top = `${combo.y}%`;
+            el.style.width = `${combo.size}px`;
+            el.style.height = `${combo.size}px`;
+            el.style.opacity = combo.opacity;
+            const label = el.querySelector('.rb-label');
+            if(label) label.textContent = combo.name;
+        }
+    });
+}
+
+loadSettings();
+loadGameProfiles();
+
+let originalGetGamepads = null;
+let virtualGamepad = null;
+const buttonPressTimes = new Array(16).fill(0);
+
+function makeButton(value){ return { pressed: !!value, touched: !!value, value: value ? 1 : 0 }; }
+
+function buildGamepad(){
+    return {
+        id: 'Xbox 360 Controller - Universal Touch HUD',
+        index: 0, connected: true, timestamp: performance.now(), mapping: 'standard',
+        axes: [...state.axes], buttons: state.buttons.map(makeButton),
+        vibrationActuator: null, hapticActuators: []
+    };
+}
+
+function updateGamepad(){
+    let finalLX = state.leftX + state.comboLeftX;
+    let finalLY = state.leftY + state.comboLeftY;
+    let finalRX = state.rightX + state.comboRightX;
+    let finalRY = state.rightY + state.comboRightY;
+
+    state.axes[0] = Math.max(-1, Math.min(1, finalLX));
+    state.axes[1] = Math.max(-1, Math.min(1, finalLY));
+
+    if(settings.rsMode === 'touchpad' || finalRX !== 0 || finalRY !== 0){
+        state.axes[2] = Math.max(-1, Math.min(1, finalRX));
+        state.axes[3] = Math.max(-1, Math.min(1, finalRY));
+    } else {
+        state.axes[2] = state.cameraX;
+        state.axes[3] = state.cameraY;
+    }
+    virtualGamepad = buildGamepad();
+}
+
+function installGamepadHook(){
+    if(!navigator.getGamepads) return;
+    try{
+        originalGetGamepads = navigator.getGamepads.bind(navigator);
+        navigator.getGamepads = function(){
+            const real = originalGetGamepads();
+            if(!virtualGamepad) updateGamepad();
+            const result = Array.from(real || []);
+            result[0] = virtualGamepad;
+            return result;
+        };
+    } catch(e){ console.warn('[Universal HUD] Gamepad hook failed', e); }
+}
+
+installGamepadHook();
+
+function press(index){ buttonPressTimes[index] = performance.now(); state.buttons[index] = true; updateGamepad(); }
+function release(index){
+    const holdTime = performance.now() - buttonPressTimes[index];
+    if (holdTime < 80) setTimeout(() => { state.buttons[index] = false; updateGamepad(); }, 80 - holdTime);
+    else { state.buttons[index] = false; updateGamepad(); }
+}
+
+function applyKeyAction(key, mode = 'press'){
+    const def = BUTTONS[key];
+    if(!def) return;
+    const factor = mode === 'press' ? 1 : -1;
+    if(def.type === 'stick'){
+        if(def.stick === 'ls'){
+            if(def.axis === 'X') state.comboLeftX += def.val * factor;
+            if(def.axis === 'Y') state.comboLeftY += def.val * factor;
+        } else if(def.stick === 'rs'){
+            if(def.axis === 'X') state.comboRightX += def.val * factor;
+            if(def.axis === 'Y') state.comboRightY += def.val * factor;
+        }
+    } else {
+        if(mode === 'press') press(def.index);
+        else release(def.index);
+    }
+}
+
+function comboStart(combo){
+    for(const key of combo.keys) applyKeyAction(key, 'press');
+    updateGamepad();
+    const el = document.querySelector(`[data-combo-id="${combo.id}"]`);
+    if(el) el.classList.add('rb-pressed');
+}
+
+function comboStop(combo){
+    for(const key of combo.keys) applyKeyAction(key, 'release');
+    updateGamepad();
+    const el = document.querySelector(`[data-combo-id="${combo.id}"]`);
+    if(el) el.classList.remove('rb-pressed');
+}
+
+/* CSS */
+function addCSS(){
+    const css = document.createElement('style');
+    css.textContent = `
+/* Xbox 视频画面全屏适应与强制消除黑边 */
+video {
+    object-fit: fill !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    top: 0 !important;
+    left: 0 !important;
+    margin: 0 !important;
+}
+
+#rb-root{ position:fixed; inset:0; width:100vw; height:100vh; z-index:2147483647; pointer-events:none; user-select:none; -webkit-user-select:none; touch-action:none; font-family:Arial,sans-serif; }
+#rb-root.input-mode-active .rb-button,
+#rb-root.input-mode-active .rb-combo,
+#rb-root.input-mode-active .rb-stick-base,
+#rb-root.input-mode-active #rb-camera,
+#rb-root.input-mode-active #rb-touchpad { display:none !important; pointer-events:none !important; }
+#rb-camera{ position:absolute; inset:0; z-index:1; pointer-events:auto; touch-action:none; }
+#rb-touchpad{ position:absolute; right:0; top:0; width:50vw; height:100vh; z-index:15; pointer-events:auto; touch-action:none; display:none; }
+#rb-touchpad.active{ display:block; }
+.rb-button{
+    position:absolute; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center;
+    box-sizing:border-box; border-radius:50%; color:white;
+    background:radial-gradient(circle, rgba(255,255,255,.22), rgba(255,255,255,.045));
+    border:2px solid rgba(255,255,255,.30); box-shadow:0 3px 15px rgba(0,0,0,.38);
+    backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); pointer-events:auto; touch-action:none; z-index:20;
+    -webkit-tap-highlight-color:transparent; background-size:contain !important; background-repeat:no-repeat !important; background-position:center !important;
+}
+.rb-mini-label{
+    position:absolute; top:-4px; right:-4px; padding:1px 5px; font-size:10px; font-weight:800;
+    line-height:1.1; color:rgba(255,255,255,0.95); background:rgba(0,0,0,0.68);
+    border:1px solid rgba(255,255,255,0.35); border-radius:8px; pointer-events:none; z-index:22;
+}
+.rb-combo{
+    position:absolute; transform:translate(-50%,-50%); display:flex; align-items:center; justify-content:center;
+    box-sizing:border-box; border-radius:15px; color:white; background:linear-gradient(135deg, rgba(255,180,0,.30), rgba(255,255,255,.06));
+    border:2px solid rgba(255,210,80,.55); box-shadow:0 3px 18px rgba(0,0,0,.40); pointer-events:auto; touch-action:none; z-index:30; -webkit-tap-highlight-color:transparent;
+}
+.rb-button.rb-pressed, .rb-combo.rb-pressed{ background-color:rgba(255,255,255,.35); border-color:rgba(255,255,255,.90); }
+.rb-label{ font-size:13px; font-weight:bold; line-height:1.05; text-align:center; padding:3px; pointer-events:none; text-shadow:0 2px 5px rgba(0,0,0,.9); }
+.rb-dragging{ outline:2px dashed rgba(255,220,0,.95); box-shadow:0 0 0 3px rgba(255,220,0,.18); }
+.rb-stick-base{
+    position:absolute; transform:translate(-50%,-50%); border-radius:50%; box-sizing:border-box;
+    border:2px solid rgba(255,255,255,.28); background:radial-gradient(circle, rgba(255,255,255,.10), rgba(255,255,255,.025)); pointer-events:auto; touch-action:none; z-index:25;
+}
+.rb-knob{ position:absolute; left:50%; top:50%; width:50%; height:50%; margin-left:-25%; margin-top:-25%; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.38), rgba(255,255,255,.08)); border:2px solid rgba(255,255,255,.43); pointer-events:none; }
+#rb-open{ position:absolute; right:2.5%; top:3%; width:43px; height:43px; border-radius:50%; background:rgba(0,0,0,.45); color:white; border:1px solid rgba(255,255,255,.25); pointer-events:auto; z-index:2147483647; font-size:18px; cursor:pointer; }
+
+/* 铅笔 与 输入 两个 Toggle Icon */
+#rb-edit-toggle{ position:absolute; right:calc(2.5% + 50px); top:3%; width:43px; height:43px; border-radius:50%; background:rgba(0,0,0,.45); color:white; border:1px solid rgba(255,255,255,.25); pointer-events:auto; z-index:2147483647; font-size:18px; cursor:pointer; display:none; }
+#rb-input-toggle{ position:absolute; right:calc(2.5% + 100px); top:3%; width:43px; height:43px; border-radius:50%; background:rgba(0,0,0,.45); color:white; border:1px solid rgba(255,255,255,.25); pointer-events:auto; z-index:2147483647; font-size:18px; cursor:pointer; display:none; }
+#rb-edit-toggle.visible, #rb-input-toggle.visible{ display:block; }
+#rb-edit-toggle.active, #rb-input-toggle.active{ background:rgba(255,180,0,.85); color:black; border-color:white; box-shadow:0 0 10px rgba(255,180,0,.8); }
+
+/* Main Panel & Slider Modal */
+#rb-panel, #rb-adjust-modal{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(93vw,460px); max-height:88vh; overflow-y:auto; box-sizing:border-box; padding:18px; border-radius:18px; background:rgba(18,18,18,.97); border:1px solid rgba(255,255,255,.18); box-shadow:0 20px 70px rgba(0,0,0,.80); color:white; display:none; pointer-events:auto; touch-action:auto; z-index:2147483646; }
+#rb-panel.open, #rb-adjust-modal.open{ display:block; }
+#rb-panel h2, #rb-adjust-modal h3{ margin:0 0 15px; font-size:18px; }
+#rb-panel-close-fixed{ position:absolute; top:10px; right:10px; width:36px; height:36px; border-radius:50%; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.10); color:white; font-size:22px; line-height:34px; text-align:center; padding:0; pointer-events:auto; touch-action:manipulation; cursor:pointer; }
+.rb-setting{ margin-top:12px; }
+.rb-setting-title{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+.rb-setting input[type=range]{ width:100%; height:24px; }
+.rb-setting input[type=text], .rb-setting select, .rb-setting textarea{ width:100%; box-sizing:border-box; padding:8px; border-radius:7px; border:1px solid rgba(255,255,255,.20); background:rgba(255,255,255,.08); color:white; pointer-events:auto; touch-action:auto; }
+.rb-ui-button{ padding:10px; border:0; border-radius:8px; color:white; background:rgba(255,255,255,.13); pointer-events:auto; touch-action:manipulation; cursor:pointer; }
+.rb-ui-button:active{ background:rgba(255,255,255,.28); }
+.rb-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:15px; }
+.rb-status{ margin-top:10px; padding:10px; border-radius:8px; text-align:center; font-size:12px; background:rgba(255,180,0,.13); word-break:break-all; }
+.rb-section{ margin-top:18px; border-top:1px solid rgba(255,255,255,.12); padding-top:12px; }
+.rb-combo-item{ padding:12px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+.rb-combo-delete{ width:100%; margin-top:8px; padding:8px; border:0; border-radius:7px; color:white; background:rgba(255,50,50,.22); cursor:pointer; }
+#rb-game-profile{ width:100%; box-sizing:border-box; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,.20); background:rgba(255,255,255,.08); color:white; font-size:15px; }
+.rb-profile-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+.rb-profile-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rb-profile-load{ padding:7px 12px; border:0; border-radius:7px; color:white; background:rgba(0,140,80,.65); cursor:pointer; }
+.rb-profile-delete{ padding:7px 12px; border:0; border-radius:7px; color:white; background:rgba(255,50,50,.25); cursor:pointer; }
+@media(orientation:portrait){ #rb-root{ display:none; } }
+`;
+    document.documentElement.appendChild(css);
+}
+addCSS();
+
+function createButton(id){
+    const def = BUTTONS[id];
+    const el = document.createElement('div');
+    el.id = `rb-${id}`;
+    el.className = 'rb-button';
+    el.dataset.id = id;
+
+    const miniBadge = document.createElement('div');
+    miniBadge.className = 'rb-mini-label';
+    miniBadge.textContent = def.name;
+    el.appendChild(miniBadge);
+
+    const label = document.createElement('div');
+    label.className = 'rb-label';
+    label.textContent = settings.names[id] || def.name;
+    el.appendChild(label);
+
+    applyLayout(el, id);
+    updateButtonLabel(id);
+    return el;
+}
+
+function applyLayout(el, id){
+    const l = settings.layout[id];
+    if(!l) return;
+    el.style.left = `${l.x}%`;
+    el.style.top = `${l.y}%`;
+    el.style.width = `${l.size}px`;
+    el.style.height = `${l.size}px`;
+    el.style.opacity = l.opacity;
+}
+
+function updateButtonLabel(id){
+    const el = document.getElementById(`rb-${id}`);
+    if(!el) return;
+    const label = el.querySelector('.rb-label');
+    let iconUrl = settings.icons && settings.icons[id] ? settings.icons[id].replace(/[\r\n\s]/g, '') : '';
+
+    if(iconUrl){
+        if(!iconUrl.startsWith('http') && !iconUrl.startsWith('data:image')){
+            iconUrl = 'data:image/png;base64,' + iconUrl;
+        }
+        el.style.setProperty('background-image', `url("${iconUrl}")`, 'important');
+        if(label) label.style.display = 'none';
+    } else {
+        el.style.backgroundImage = 'none';
+        if(label){
+            label.style.display = 'block';
+            label.textContent = settings.names[id] || BUTTONS[id].name;
+        }
+    }
+}
+
+function createCombo(combo){
+    const el = document.createElement('div');
+    el.className = 'rb-combo';
+    el.dataset.comboId = combo.id;
+    el.style.left = `${combo.x}%`;
+    el.style.top = `${combo.y}%`;
+    el.style.width = `${combo.size}px`;
+    el.style.height = `${combo.size}px`;
+    el.style.opacity = combo.opacity;
+
+    const label = document.createElement('div');
+    label.className = 'rb-label';
+    label.textContent = combo.name;
+    el.appendChild(label);
+    return el;
+}
+
+function canDrag(){ return (settings.dragEnabled === true); }
+
+function startDrag(el, e){
+    if(!canDrag()) return false;
+    if (e.cancelable) e.preventDefault(); 
+    e.stopPropagation();
+    state.dragging = true;
+    state.dragTarget = el;
+    state.dragPointer = e.pointerId || 0;
+
+    const rect = el.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    state.dragOffsetX = clientX - (rect.left + rect.width / 2);
+    state.dragOffsetY = clientY - (rect.top + rect.height / 2);
+
+    el.classList.add('rb-dragging');
+    try{ if (el.setPointerCapture) el.setPointerCapture(e.pointerId); } catch(_){}
+    return true;
+}
+
+function moveDrag(e){
+    if(!state.dragging || !state.dragTarget) return;
+    if (e.cancelable) e.preventDefault(); 
+    e.stopPropagation();
+
+    const el = state.dragTarget;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    let x = (clientX - state.dragOffsetX) / window.innerWidth * 100;
+    let y = (clientY - state.dragOffsetY) / window.innerHeight * 100;
+    x = Math.max(2, Math.min(98, x));
+    y = Math.max(3, Math.min(97, y));
+
+    if(el.dataset.id){
+        const id = el.dataset.id;
+        if(settings.layout[id]){
+            settings.layout[id].x = x; settings.layout[id].y = y;
+            el.style.left = `${x}%`; el.style.top = `${y}%`;
+        }
+    } else if(el.dataset.comboId){
+        const combo = settings.combos.find(c => c.id === el.dataset.comboId);
+        if(combo){
+            combo.x = x; combo.y = y;
+            el.style.left = `${x}%`; el.style.top = `${y}%`;
+        }
+    }
+}
+
+function endDrag(e){
+    if(!state.dragging) return;
+    const el = state.dragTarget;
+    if(el){
+        el.classList.remove('rb-dragging');
+        try{ if (el.releasePointerCapture && e.pointerId) el.releasePointerCapture(e.pointerId); } catch(_){}
+    }
+    state.dragging = false;
+    state.dragTarget = null;
+    state.dragPointer = null;
+    saveSettings();
+}
+
+/* 长按弹窗滑动调节属性 Modal */
+function openAdjustModal(el) {
+    if (!settings.dragEnabled) return; 
+
+    let modal = document.getElementById('rb-adjust-modal');
+    if(!modal){
+        modal = document.createElement('div');
+        modal.id = 'rb-adjust-modal';
+        document.getElementById('rb-root').appendChild(modal);
+    }
+
+    let targetObj = null;
+    let isStick = false;
+    let isCombo = false;
+    let id = el.dataset.id;
+
+    if (id) {
+        if (!settings.layout[id]) settings.layout[id] = { x: 50, y: 50, size: 66, opacity: 0.6 };
+        targetObj = settings.layout[id];
+        if (id.includes('_stick')) isStick = true;
+    } else if (el.dataset.comboId) {
+        targetObj = settings.combos.find(c => c.id === el.dataset.comboId);
+        isCombo = true;
+    }
+
+    if (!targetObj) return;
+
+    const currentName = isCombo ? targetObj.name : (settings.names[id] || (BUTTONS[id] ? BUTTONS[id].name : ''));
+    const currentIcon = id && settings.icons ? (settings.icons[id] || '') : '';
+    const currentSize = targetObj.size || 66;
+    const currentOpacity = targetObj.opacity || 0.6;
+
+    modal.innerHTML = `
+        <h3>✏️ ${t('adjustTitle')}</h3>
+        ${!isStick ? `
+        <div class="rb-setting">
+            <div class="rb-setting-title"><span>${t('adjustName')}</span></div>
+            <input type="text" id="rb-adj-name" value="${escapeHTML(currentName)}">
+        </div>` : ''}
+        ${(!isStick && !isCombo) ? `
+        <div class="rb-setting">
+            <div class="rb-setting-title"><span>${t('adjustIcon')}</span></div>
+            <input type="text" id="rb-adj-icon" placeholder="https://... 或 Base64" value="${escapeHTML(currentIcon)}">
+        </div>` : ''}
+        <div class="rb-setting">
+            <div class="rb-setting-title">
+                <span>${t('adjustSize')}</span>
+                <span id="rb-adj-size-val">${currentSize}px</span>
+            </div>
+            <input type="range" id="rb-adj-size" min="30" max="220" step="1" value="${currentSize}">
+        </div>
+        <div class="rb-setting">
+            <div class="rb-setting-title">
+                <span>${t('adjustOpacity')}</span>
+                <span id="rb-adj-opac-val">${Math.round(currentOpacity * 100)}%</span>
+            </div>
+            <input type="range" id="rb-adj-opac" min="0.10" max="1" step="0.01" value="${currentOpacity}">
+        </div>
+        <button class="rb-ui-button" id="rb-adj-save" style="width:100%;margin-top:15px;background:rgba(0,180,80,.6);">${t('adjustConfirm')}</button>
+    `;
+
+    modal.classList.add('open');
+
+    const sizeInput = document.getElementById('rb-adj-size');
+    const opacInput = document.getElementById('rb-adj-opac');
+    const nameInput = document.getElementById('rb-adj-name');
+    const iconInput = document.getElementById('rb-adj-icon');
+
+    sizeInput.addEventListener('input', () => {
+        const val = sizeInput.value;
+        document.getElementById('rb-adj-size-val').textContent = `${val}px`;
+        targetObj.size = Number(val);
+        el.style.width = `${val}px`;
+        el.style.height = `${val}px`;
+    });
+
+    opacInput.addEventListener('input', () => {
+        const val = opacInput.value;
+        document.getElementById('rb-adj-opac-val').textContent = `${Math.round(val * 100)}%`;
+        targetObj.opacity = Number(val);
+        el.style.opacity = val;
+    });
+
+    if (nameInput) {
+        nameInput.addEventListener('input', () => {
+            const val = nameInput.value;
+            if (isCombo) {
+                targetObj.name = val;
+                const label = el.querySelector('.rb-label');
+                if (label) label.textContent = val;
+            } else if (id) {
+                settings.names[id] = val;
+                updateButtonLabel(id);
+            }
+        });
+    }
+
+    if (iconInput && id) {
+        iconInput.addEventListener('input', () => {
+            if(!settings.icons) settings.icons = {};
+            settings.icons[id] = iconInput.value.trim();
+            updateButtonLabel(id);
+        });
+    }
+
+    document.getElementById('rb-adj-save').addEventListener('click', () => {
+        saveSettings();
+        modal.classList.remove('open');
+    });
+}
+
+function bindButton(el, index){
+    let pressed = false;
+    let longPressTimer = null;
+
+    function handleDown(e) {
+        if (settings.dragEnabled) {
+            longPressTimer = setTimeout(() => {
+                triggerHaptic();
+                openAdjustModal(el);
+            }, 600);
+            startDrag(el, e); 
+            return; 
+        }
+
+        if (e.cancelable) e.preventDefault(); 
+        e.stopPropagation();
+        if (pressed) return;
+        pressed = true;
+        el.classList.add('rb-pressed');
+        press(index);
+    }
+
+    function handleUp(e) {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        if(state.dragging && state.dragTarget === el){ endDrag(e); return; }
+        if(!pressed) return;
+        pressed = false;
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+        release(index);
+        el.classList.remove('rb-pressed');
+    }
+
+    el.addEventListener('touchstart', handleDown, { passive: false });
+    el.addEventListener('touchend', handleUp, { passive: false });
+    el.addEventListener('touchcancel', handleUp, { passive: false });
+
+    el.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') handleDown(e); }, { passive: false });
+    el.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') handleUp(e); }, { passive: false });
+}
+
+function triggerHaptic(){
+    if (navigator.vibrate) navigator.vibrate(40);
+}
+
+function createStickHUD(id){
+    const el = document.createElement('div');
+    el.id = `rb-${id}-stick`;
+    el.className = 'rb-stick-base';
+    el.dataset.id = `${id}_stick`;
+
+    const miniBadge = document.createElement('div');
+    miniBadge.className = 'rb-mini-label';
+    miniBadge.textContent = id.toUpperCase();
+    el.appendChild(miniBadge);
+
+    const knob = document.createElement('div');
+    knob.className = 'rb-knob';
+    el.appendChild(knob);
+
+    applyLayout(el, `${id}_stick`);
+    return el;
+}
+
+function bindStick(stick, type){
+    const isLS = type === 'ls';
+    let longPressTimer = null;
+
+    function handleStart(clientX, clientY, identifier) {
+        if (settings.dragEnabled) {
+            longPressTimer = setTimeout(() => {
+                triggerHaptic();
+                openAdjustModal(stick);
+            }, 600);
+        }
+
+        if(isLS) state.lsTouchId = identifier;
+        else state.rsTouchId = identifier;
+        updateStickValue(stick, type, clientX, clientY);
+    }
+
+    function handleMove(clientX, clientY, identifier) {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        const activeId = isLS ? state.lsTouchId : state.rsTouchId;
+        if(activeId !== identifier) return;
+        updateStickValue(stick, type, clientX, clientY);
+    }
+
+    function handleEnd(identifier) {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        const activeId = isLS ? state.lsTouchId : state.rsTouchId;
+        if(activeId !== identifier) return;
+        if(isLS){ state.lsTouchId = null; state.leftX = 0; state.leftY = 0; } 
+        else { state.rsTouchId = null; state.rightX = 0; state.rightY = 0; }
+        const knob = stick.querySelector('.rb-knob');
+        if(knob) knob.style.transform = 'translate(0,0)';
+        updateGamepad();
+    }
+
+    stick.addEventListener('touchstart', e => {
+        if(canDrag()){ startDrag(stick, e); return; }
+        e.preventDefault(); e.stopPropagation();
+        const touch = e.changedTouches[0];
+        handleStart(touch.clientX, touch.clientY, touch.identifier);
+    }, { passive: false });
+
+    document.addEventListener('touchmove', e => {
+        if(state.dragging) return;
+        const activeId = isLS ? state.lsTouchId : state.rsTouchId;
+        if(activeId === null) return;
+        for(let i=0; i<e.changedTouches.length; i++){
+            if(e.changedTouches[i].identifier === activeId){
+                e.preventDefault();
+                handleMove(e.changedTouches[i].clientX, e.changedTouches[i].clientY, activeId);
+                break;
+            }
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', e => {
+        const activeId = isLS ? state.lsTouchId : state.rsTouchId;
+        if(activeId === null) return;
+        for(let i=0; i<e.changedTouches.length; i++){
+            if(e.changedTouches[i].identifier === activeId){
+                handleEnd(activeId);
+                break;
+            }
+        }
+    }, { passive: false });
+
+    stick.addEventListener('mousedown', e => {
+        if(canDrag()){ startDrag(stick, e); return; }
+        e.preventDefault();
+        handleStart(e.clientX, e.clientY, 'mouse');
+        const onMouseMove = me => handleMove(me.clientX, me.clientY, 'mouse');
+        const onMouseUp = () => { handleEnd('mouse'); document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+}
+
+function updateStickValue(stick, type, px, py){
+    const rect = stick.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    let x = (px - cx) / (rect.width / 2);
+    let y = (py - cy) / (rect.height / 2);
+    const distance = Math.sqrt(x*x + y*y);
+
+    if(distance > 1){ x /= distance; y /= distance; }
+    const dz = CFG.DEADZONE;
+    if(Math.abs(x) < dz) x = 0; else x = Math.sign(x) * (Math.abs(x) - dz) / (1 - dz);
+    if(Math.abs(y) < dz) y = 0; else y = Math.sign(y) * (Math.abs(y) - dz) / (1 - dz);
+
+    if(type === 'ls'){ state.leftX = Math.max(-1, Math.min(1, x)); state.leftY = Math.max(-1, Math.min(1, y)); }
+    else { state.rightX = Math.max(-1, Math.min(1, x)); state.rightY = Math.max(-1, Math.min(1, y)); }
+
+    const knob = stick.querySelector('.rb-knob');
+    if(knob) knob.style.transform = `translate(${x * (rect.width * 0.3)}px, ${y * (rect.height * 0.3)}px)`;
+    updateGamepad();
+}
+
+function bindTouchpad(tp){
+    let startX = 0, startY = 0;
+    const maxRadius = 55;
+
+    tp.addEventListener('pointerdown', e => {
+        if(canDrag() || state.panel) return;
+        e.preventDefault();
+        state.rsTouchPointer = e.pointerId;
+        startX = e.clientX; startY = e.clientY;
+        try{ tp.setPointerCapture(e.pointerId); } catch(_){}
+    }, { passive:false });
+
+    tp.addEventListener('pointermove', e => {
+        if(state.rsTouchPointer !== e.pointerId) return;
+        e.preventDefault();
+        let dx = e.clientX - startX; let dy = e.clientY - startY;
+        let x = dx / maxRadius; let y = dy / maxRadius;
+        const len = Math.sqrt(x*x + y*y);
+        if(len > 1){ x /= len; y /= len; }
+        state.rightX = Math.max(-1, Math.min(1, x)); state.rightY = Math.max(-1, Math.min(1, y));
+        updateGamepad();
+    }, { passive:false });
+
+    function stopTouchpad(e){
+        if(state.rsTouchPointer !== e.pointerId) return;
+        state.rsTouchPointer = null; state.rightX = 0; state.rightY = 0; updateGamepad();
+    }
+    tp.addEventListener('pointerup', stopTouchpad, { passive:false });
+    tp.addEventListener('pointercancel', stopTouchpad, { passive:false });
+}
+
+function setRSMode(mode){
+    settings.rsMode = mode;
+    const rsStick = document.getElementById('rb-rs-stick');
+    const tp = document.getElementById('rb-touchpad');
+    const label = document.getElementById('rb-rsmode-value');
+
+    if(mode === 'touchpad'){
+        if(rsStick) rsStick.style.display = 'none';
+        if(tp) tp.classList.add('active');
+        if(label) label.textContent = t('rsModeTouchpad');
+    } else {
+        if(rsStick) rsStick.style.display = 'block';
+        if(tp) tp.classList.remove('active');
+        if(label) label.textContent = t('rsModeStick');
+    }
+    saveSettings();
+}
+
+function bindCombo(el, combo){
+    let active = false;
+    let longPressTimer = null;
+
+    function startCombo(e) {
+        if (settings.dragEnabled) {
+            longPressTimer = setTimeout(() => {
+                triggerHaptic();
+                openAdjustModal(el);
+            }, 600);
+            startDrag(el, e); 
+            return; 
+        }
+
+        if (e.cancelable) e.preventDefault(); 
+        e.stopPropagation();
+        if (active) return;
+        active = true;
+        comboStart(combo);
+    }
+
+    function stopCombo(e) {
+        if (longPressTimer) clearTimeout(longPressTimer);
+        if(state.dragging && state.dragTarget === el){ endDrag(e); return; }
+        if(!active) return;
+        active = false;
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+        comboStop(combo);
+    }
+
+    el.addEventListener('touchstart', startCombo, { passive: false });
+    el.addEventListener('touchend', stopCombo, { passive: false });
+    el.addEventListener('touchcancel', stopCombo, { passive: false });
+
+    el.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') startCombo(e); }, { passive: false });
+    el.addEventListener('pointerup', e => { if (e.pointerType === 'mouse') stopCombo(e); }, { passive: false });
+}
+
+function bindCamera(camera){
+    camera.addEventListener('pointerdown', e => {
+        if(canDrag() || state.panel || state.inputMode || settings.rsMode === 'touchpad') return;
+        state.cameraPointer = e.pointerId;
+        state.cameraLastX = e.clientX; state.cameraLastY = e.clientY;
+        try{ camera.setPointerCapture(e.pointerId); } catch(_){}
+    }, { passive:false });
+
+    camera.addEventListener('pointermove', e => {
+        if(canDrag() || state.panel || state.inputMode || settings.rsMode === 'touchpad') return;
+        if(state.cameraPointer !== e.pointerId) return;
+        e.preventDefault();
+        const dx = e.clientX - state.cameraLastX;
+        const dy = e.clientY - state.cameraLastY;
+        state.cameraLastX = e.clientX; state.cameraLastY = e.clientY;
+        state.cameraX = Math.max(-1, Math.min(1, dx * settings.cameraX * settings.cameraBoost));
+        state.cameraY = Math.max(-1, Math.min(1, dy * settings.cameraY * settings.cameraBoost));
+        updateGamepad();
+    }, { passive:false });
+
+    function stopCamera(e){
+        if(state.cameraPointer !== e.pointerId) return;
+        state.cameraPointer = null; state.cameraLastX = null; state.cameraLastY = null;
+        state.cameraX = 0; state.cameraY = 0; updateGamepad();
+    }
+    camera.addEventListener('pointerup', stopCamera, { passive:false });
+    camera.addEventListener('pointercancel', stopCamera, { passive:false });
+}
+
+function renderPanelContent(){
+    const panel = document.getElementById('rb-panel');
+    if(!panel) return;
+
+    panel.innerHTML = `
+        <button id="rb-panel-close-fixed" type="button">×</button>
+        <h2>${t('title')}</h2>
+
+        <div class="rb-setting" style="margin-top:0;">
+            <div class="rb-setting-title"><span>🌐 ${t('language')}</span></div>
+            <select id="rb-lang-select">
+                <option value="zh" ${settings.lang === 'zh' ? 'selected' : ''}>中文 (Chinese)</option>
+                <option value="en" ${settings.lang === 'en' ? 'selected' : ''}>English</option>
+            </select>
+        </div>
+
+        <div class="rb-section">
+            <b>${t('shareSection')}</b>
+            <div class="rb-setting">
+                <textarea id="rb-share-code" rows="3" placeholder="${t('sharePlaceholder')}"></textarea>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                    <button class="rb-ui-button" id="rb-export-code">${t('exportBtn')}</button>
+                    <button class="rb-ui-button" id="rb-import-code">${t('importBtn')}</button>
+                </div>
+            </div>
+            <div id="rb-share-status" class="rb-status">${t('shareDefaultStatus')}</div>
+        </div>
+
+        <div class="rb-section">
+            <b>${t('profileSection')}</b>
+            <div class="rb-setting">
+                <div class="rb-setting-title">
+                    <span>${t('profileName')}</span><span>${t('profileAction')}</span>
+                </div>
+                <input id="rb-game-profile" type="text" placeholder="${t('profilePlaceholder')}">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                    <button class="rb-ui-button" id="rb-profile-save">${t('profileSaveBtn')}</button>
+                    <button class="rb-ui-button" id="rb-profile-load">${t('profileLoadBtn')}</button>
+                </div>
+            </div>
+            <div id="rb-profile-status" class="rb-status">${t('profileDefaultStatus')}</div>
+            <div id="rb-profile-list" style="margin-top:8px"></div>
+        </div>
+
+        <div class="rb-section">
+            <b>${t('rsSection')}</b>
+            <div class="rb-setting">
+                <div class="rb-setting-title">
+                    <span>${t('rsCurrent')}</span>
+                    <span id="rb-rsmode-value">${settings.rsMode === 'touchpad' ? t('rsModeTouchpad') : t('rsModeStick')}</span>
+                </div>
+                <button class="rb-ui-button" id="rb-toggle-rsmode" style="width:100%">${t('rsToggleBtn')}</button>
+            </div>
+        </div>
+
+        <div class="rb-setting">
+            <div class="rb-setting-title">
+                <span>${t('camX')}</span>
+                <span id="rb-camx-value">${settings.cameraX.toFixed(3)}</span>
+            </div>
+            <input id="rb-camx" type="range" min="0.01" max="0.30" step="0.005" value="${settings.cameraX}">
+        </div>
+
+        <div class="rb-setting">
+            <div class="rb-setting-title">
+                <span>${t('camY')}</span>
+                <span id="rb-camy-value">${settings.cameraY.toFixed(3)}</span>
+            </div>
+            <input id="rb-camy" type="range" min="0.01" max="0.30" step="0.005" value="${settings.cameraY}">
+        </div>
+
+        <div class="rb-setting">
+            <div class="rb-setting-title">
+                <span>${t('camBoost')}</span>
+                <span id="rb-boost-value">${settings.cameraBoost.toFixed(1)}</span>
+            </div>
+            <input id="rb-boost" type="range" min="0.5" max="5" step="0.1" value="${settings.cameraBoost}">
+        </div>
+
+        <div class="rb-section">
+            <b>${t('comboSection')}</b>
+            <div id="rb-combos"></div>
+            <button class="rb-ui-button" id="rb-add-combo" style="width:100%;margin-top:10px">${t('comboAddBtn')}</button>
+        </div>
+
+        <div class="rb-actions">
+            <button class="rb-ui-button" id="rb-reset">${t('resetBtn')}</button>
+            <button class="rb-ui-button" id="rb-save">${t('saveBtn')}</button>
+            <button class="rb-ui-button" id="rb-close" style="grid-column:1/3">${t('closeBtn')}</button>
+        </div>
+    `;
+
+    buildComboSettings();
+    buildProfileList();
+    bindPanelEvents();
+}
+
+function createPanel(){
+    const panel = document.createElement('div');
+    panel.id = 'rb-panel';
+    document.getElementById('rb-root').appendChild(panel);
+    renderPanelContent();
+}
+
+function comboOptions(selected){
+    let html = '';
+    Object.keys(BUTTONS).forEach(key => {
+        const checked = selected.includes(key);
+        html += `<option value="${key}" ${checked ? 'selected' : ''}>${BUTTONS[key].name}</option>`;
+    });
+    return html;
+}
+
+function buildComboSettings(){
+    const container = document.getElementById('rb-combos');
+    if(!container) return;
+    container.innerHTML = '';
+
+    settings.combos.forEach(combo => {
+        const item = document.createElement('div');
+        item.className = 'rb-combo-item';
+
+        item.innerHTML = `
+            <div class="rb-control-title">${t('comboTitle')}</div>
+            <div class="rb-setting">
+                <div class="rb-setting-title"><span>${t('adjustName')}</span></div>
+                <input type="text" data-combo-name value="${escapeHTML(combo.name)}">
+            </div>
+            <div class="rb-setting">
+                <div class="rb-setting-title"><span>${t('comboSection')}</span><span>${t('comboMultiSelect')}</span></div>
+                <select multiple data-combo-keys size="8">${comboOptions(combo.keys)}</select>
+            </div>
+            <button class="rb-combo-delete" data-combo-delete>${t('comboDeleteBtn')}</button>
+        `;
+
+        container.appendChild(item);
+
+        const name = item.querySelector('[data-combo-name]');
+        name.addEventListener('input', () => {
+            combo.name = name.value;
+            const el = document.querySelector(`[data-combo-id="${combo.id}"]`);
+            if(el){ const label = el.querySelector('.rb-label'); if(label) label.textContent = combo.name; }
+            saveSettings();
+        });
+
+        const keys = item.querySelector('[data-combo-keys]');
+        keys.addEventListener('change', () => {
+            combo.keys = Array.from(keys.selectedOptions).map(option => option.value);
+            saveSettings();
+        });
+
+        item.querySelector('[data-combo-delete]').addEventListener('click', () => {
+            settings.combos = settings.combos.filter(c => c.id !== combo.id);
+            const el = document.querySelector(`[data-combo-id="${combo.id}"]`);
+            if(el) el.remove();
+            buildComboSettings();
+            saveSettings();
+        });
+    });
+}
+
+function escapeHTML(value){
+    return String(value || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function addCombo(){
+    const id = 'combo_' + Date.now();
+    const combo = { id: id, name: t('newComboDefaultName'), keys: [], x: 50, y: 70, size: 62, opacity: .60 };
+    settings.combos.push(combo);
+
+    const root = document.getElementById('rb-root');
+    const el = createCombo(combo);
+    root.appendChild(el);
+
+    bindCombo(el, combo);
+    buildComboSettings();
+    saveSettings();
+}
+
+function buildProfileList(){
+    const box = document.getElementById('rb-profile-list');
+    if(!box) return;
+    box.innerHTML = '';
+    const names = Object.keys(gameProfiles);
+    if(names.length === 0){
+        box.innerHTML = `<div style="opacity:.55;text-align:center;padding:8px;font-size:12px;">${t('profileNoList')}</div>`;
+        return;
+    }
+
+    names.forEach(gameName => {
+        const item = document.createElement('div');
+        item.className = 'rb-profile-item';
+
+        const name = document.createElement('div');
+        name.className = 'rb-profile-name';
+        name.textContent = gameName;
+
+        const load = document.createElement('button');
+        load.className = 'rb-profile-load';
+        load.textContent = t('profileLoad');
+        load.addEventListener('click', () => {
+            document.getElementById('rb-game-profile').value = gameName;
+            loadGameProfile(gameName);
+        });
+
+        const del = document.createElement('button');
+        del.className = 'rb-profile-delete';
+        del.textContent = t('profileDelete');
+        del.addEventListener('click', () => {
+            if(!confirm(t('profileConfirmDelete', gameName))) return;
+            delete gameProfiles[gameName];
+            saveGameProfiles();
+            buildProfileList();
+        });
+
+        item.appendChild(name); item.appendChild(load); item.appendChild(del);
+        box.appendChild(item);
+    });
+}
+
+function saveGameProfile(){
+    const input = document.getElementById('rb-game-profile');
+    if(!input) return;
+    const gameName = input.value.trim();
+    if(!gameName){ alert(t('profileSaveAlert')); input.focus(); return; }
+    gameProfiles[gameName] = createProfileSnapshot();
+    saveGameProfiles(); saveSettings(); buildProfileList();
+    const status = document.getElementById('rb-profile-status');
+    if(status) status.textContent = t('profileSavedStatus', gameName);
+}
+
+function loadGameProfile(gameName){
+    gameName = String(gameName || '').trim();
+    if(!gameName){ alert(t('profileSaveAlert')); return; }
+    const profile = gameProfiles[gameName];
+    if(!profile){ alert(t('profileNotFound', gameName)); return; }
+
+    applyProfile(profile);
+
+    document.querySelectorAll('.rb-combo').forEach(el => el.remove());
+    settings.combos.forEach(combo => {
+        const root = document.getElementById('rb-root');
+        const el = createCombo(combo);
+        root.appendChild(el);
+        bindCombo(el, combo);
+    });
+
+    refreshHUD();
+    renderPanelContent();
+
+    const status = document.getElementById('rb-profile-status');
+    if(status) status.textContent = t('profileLoadedStatus', gameName);
+}
+
+function exportShareCode(){
+    try {
+        const snapshot = createProfileSnapshot();
+        const code = 'HUD1:' + btoa(encodeURIComponent(JSON.stringify(snapshot)));
+        const area = document.getElementById('rb-share-code');
+        if(area) area.value = code;
+
+        navigator.clipboard.writeText(code).then(() => {
+            const status = document.getElementById('rb-share-status');
+            if(status) status.textContent = t('shareExportSuccessClipboard');
+        }).catch(() => {
+            const status = document.getElementById('rb-share-status');
+            if(status) status.textContent = t('shareExportSuccessManual');
+        });
+    } catch(e) { alert('Export Failed'); }
+}
+
+function importShareCode(){
+    const area = document.getElementById('rb-share-code');
+    if(!area) return;
+    let raw = area.value.trim();
+    if(!raw){ alert(t('sharePasteAlert')); return; }
+
+    try {
+        if(raw.startsWith('HUD1:')){ raw = raw.replace('HUD1:', ''); }
+        const profile = JSON.parse(decodeURIComponent(atob(raw)));
+        if(!profile.layout){ throw new Error('Invalid Format'); }
+
+        applyProfile(profile);
+
+        document.querySelectorAll('.rb-combo').forEach(el => el.remove());
+        settings.combos.forEach(combo => {
+            const root = document.getElementById('rb-root');
+            const el = createCombo(combo);
+            root.appendChild(el);
+            bindCombo(el, combo);
+        });
+
+        refreshHUD(); renderPanelContent();
+        alert(t('shareImportSuccess'));
+    } catch(e) { alert(t('shareImportFail')); }
+}
+
+function updateDragUI(){
+    const editBtn = document.getElementById('rb-edit-toggle');
+    if(editBtn) {
+        if(settings.dragEnabled) editBtn.classList.add('active');
+        else editBtn.classList.remove('active');
+    }
+}
+
+function bindPanelEvents(){
+    const langSelect = document.getElementById('rb-lang-select');
+    if(langSelect){
+        langSelect.addEventListener('change', e => {
+            settings.lang = e.target.value;
+            saveSettings(); renderPanelContent();
+        });
+    }
+
+    document.getElementById('rb-export-code').addEventListener('click', exportShareCode);
+    document.getElementById('rb-import-code').addEventListener('click', importShareCode);
+
+    document.getElementById('rb-toggle-rsmode').addEventListener('click', () => {
+        setRSMode(settings.rsMode === 'touchpad' ? 'stick' : 'touchpad');
+    });
+
+    document.getElementById('rb-camx').addEventListener('input', e => {
+        settings.cameraX = Number(e.target.value);
+        document.getElementById('rb-camx-value').textContent = settings.cameraX.toFixed(3);
+        saveSettings();
+    });
+
+    document.getElementById('rb-camy').addEventListener('input', e => {
+        settings.cameraY = Number(e.target.value);
+        document.getElementById('rb-camy-value').textContent = settings.cameraY.toFixed(3);
+        saveSettings();
+    });
+
+    document.getElementById('rb-boost').addEventListener('input', e => {
+        settings.cameraBoost = Number(e.target.value);
+        document.getElementById('rb-boost-value').textContent = settings.cameraBoost.toFixed(1);
+        saveSettings();
+    });
+
+    document.getElementById('rb-add-combo').addEventListener('click', addCombo);
+    document.getElementById('rb-profile-save').addEventListener('click', saveGameProfile);
+    document.getElementById('rb-profile-load').addEventListener('click', () => {
+        const input = document.getElementById('rb-game-profile');
+        if(input) loadGameProfile(input.value);
+    });
+
+    document.getElementById('rb-panel-close-fixed').addEventListener('click', closePanel);
+    document.getElementById('rb-close').addEventListener('click', closePanel);
+    document.getElementById('rb-save').addEventListener('click', () => saveSettings());
+
+    document.getElementById('rb-reset').addEventListener('click', () => {
+        if(!confirm(t('resetConfirm'))) return;
+        settings.layout = JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+        refreshHUD();
+        saveSettings();
+    });
+
+    updateDragUI();
+}
+
+function openPanel(){ state.panel = true; document.getElementById('rb-panel').classList.add('open'); }
+function closePanel(){ state.panel = false; document.getElementById('rb-panel').classList.remove('open'); }
+
+function build(){
+    if(document.getElementById('rb-root')) return;
+
+    const root = document.createElement('div');
+    root.id = 'rb-root';
+
+    const camera = document.createElement('div');
+    camera.id = 'rb-camera';
+    root.appendChild(camera);
+
+    const tp = document.createElement('div');
+    tp.id = 'rb-touchpad';
+    root.appendChild(tp);
+
+    const lsStick = createStickHUD('ls'); root.appendChild(lsStick);
+    const rsStick = createStickHUD('rs'); root.appendChild(rsStick);
+
+    Object.keys(BUTTONS).forEach(id => {
+        if(BUTTONS[id].type) return;
+        const el = createButton(id);
+        root.appendChild(el);
+    });
+
+    settings.combos.forEach(combo => {
+        const el = createCombo(combo);
+        root.appendChild(el);
+    });
+
+    const open = document.createElement('button');
+    open.id = 'rb-open'; open.textContent = '⚙'; open.type = 'button';
+    root.appendChild(open);
+
+    const editToggle = document.createElement('button');
+    editToggle.id = 'rb-edit-toggle'; editToggle.textContent = '✏️'; editToggle.type = 'button';
+    root.appendChild(editToggle);
+
+    const inputToggle = document.createElement('button');
+    inputToggle.id = 'rb-input-toggle'; inputToggle.textContent = '⌨️'; inputToggle.type = 'button';
+    root.appendChild(inputToggle);
+
+    document.body.appendChild(root);
+
+    createPanel();
+    bindCamera(camera);
+    bindStick(lsStick, 'ls');
+    bindStick(rsStick, 'rs');
+    bindTouchpad(tp);
+
+    Object.keys(BUTTONS).forEach(id => {
+        if(BUTTONS[id].type) return;
+        const el = document.getElementById(`rb-${id}`);
+        if(el) bindButton(el, BUTTONS[id].index);
+    });
+
+    settings.combos.forEach(combo => {
+        const el = document.querySelector(`[data-combo-id="${combo.id}"]`);
+        if(el) bindCombo(el, combo);
+    });
+
+    /* 点击 ⚙ 逻辑：1次点击开/关设置，2次点击同时出现/隐藏 ✏️ 和 ⌨️ 图标 */
+    let openClickCount = 0;
+    let openClickTimer = null;
+
+    open.addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        openClickCount++;
+        clearTimeout(openClickTimer);
+
+        openClickTimer = setTimeout(() => { 
+            if (openClickCount === 2) {
+                editToggle.classList.toggle('visible');
+                inputToggle.classList.toggle('visible');
+            } else if (openClickCount === 1) {
+                if(state.panel) closePanel(); else openPanel();
+            }
+            openClickCount = 0; 
+        }, 250);
+    });
+
+    editToggle.addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        settings.dragEnabled = !settings.dragEnabled;
+        updateDragUI();
+    });
+
+    inputToggle.addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        state.inputMode = !state.inputMode;
+        if(state.inputMode) {
+            inputToggle.classList.add('active');
+            root.classList.add('input-mode-active');
+        } else {
+            inputToggle.classList.remove('active');
+            root.classList.remove('input-mode-active');
+        }
+    });
+
+    document.addEventListener('touchmove', e => { if(state.dragging) moveDrag(e); }, { passive:false });
+    document.addEventListener('touchend', e => { if(state.dragging) endDrag(e); }, { passive:false });
+    document.addEventListener('touchcancel', e => { if(state.dragging) endDrag(e); }, { passive:false });
+
+    document.addEventListener('pointermove', e => { if(state.dragging) moveDrag(e); }, { passive:false });
+    document.addEventListener('pointerup', e => { if(state.dragging) endDrag(e); }, { passive:false });
+    document.addEventListener('pointercancel', e => { if(state.dragging) endDrag(e); }, { passive:false });
+
+    setRSMode(settings.rsMode || 'stick');
+    updateDragUI();
+    updateGamepad();
+}
+
+function waitBody(){
+    if(document.body){ build(); return; }
+    requestAnimationFrame(waitBody);
+}
+waitBody();
+
+document.addEventListener('visibilitychange', () => {
+    if(document.hidden){
+        for(let i = 0; i < state.buttons.length; i++){ state.buttons[i] = false; }
+        state.leftX = 0; state.leftY = 0; state.rightX = 0; state.rightY = 0;
+        state.comboLeftX = 0; state.comboLeftY = 0; state.comboRightX = 0; state.comboRightY = 0;
+        state.cameraX = 0; state.cameraY = 0;
+        state.cameraPointer = null; state.lsTouchId = null; state.rsTouchId = null; state.rsTouchPointer = null;
+        for(const combo of settings.combos){ comboStop(combo); }
+        updateGamepad();
+    }
+});
+
+})();
