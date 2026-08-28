@@ -9,13 +9,6 @@
 
 ### 📌 安装步骤
 
-| 1. 进入设置 | 2. 粘贴代码并保存 | 3. 重启生效 |
-| :---: | :---: | :---: |
-| <img width="1220" height="2566" alt="82690" src="https://github.com/user-attachments/assets/dbac2484-c3dd-4f92-bf42-867c72341f6f" />
- | <img width="1220" height="2638" alt="82692" src="https://github.com/user-attachments/assets/c5e068bf-2958-4d9e-af6b-e1b3dc234da5" />
- | <img width="1220" height="2617" alt="82706" src="https://github.com/user-attachments/assets/0aea91b2-37d8-4784-b11d-5debcdecafa3" />
- |
-
 1. **复制脚本代码**：复制代码库中的 `*.user.js` 全文。
 2. **打开 Better xCloud**：启动应用，点击主界面的 **Settings（设置）**。
 3. **添加自定义脚本**：
@@ -48,18 +41,16 @@
 
 ### 📌 How to Install
 
-| 1. Go to Settings | 2. Paste Code & Save | 3. Restart App |
-| :---: | :---: | :---: |
-| <img width="1220" height="2566" alt="82690" src="https://github.com/user-attachments/assets/dbac2484-c3dd-4f92-bf42-867c72341f6f" />
- | <img width="1220" height="2638" alt="82692" src="https://github.com/user-attachments/assets/c5e068bf-2958-4d9e-af6b-e1b3dc234da5" />
- | <img width="1220" height="2617" alt="82706" src="https://github.com/user-attachments/assets/0aea91b2-37d8-4784-b11d-5debcdecafa3" />
- |
-
 1. **Copy Script Code**: Copy the full code from `*.user.js`.
 2. **Open Better xCloud**: Launch app and tap **Settings**.
+<img width="1220" height="2566" alt="82690" src="https://github.com/user-attachments/assets/15287803-117f-4d48-a3d4-6c3db421dd21" />
+
 3. **Add Custom Script**:
    * Tap **Custom Script**.
    * **Paste** code and tap **Save**.
+<img width="1220" height="2638" alt="82692" src="https://github.com/user-attachments/assets/b19a23fb-a679-4d49-8a3d-685f97a9d73c" /><img width="1220" height="2617" alt="82706" src="https://github.com/user-attachments/assets/0b8ffff9-d597-42aa-8890-e8678fe8d497" />
+
+
 4. **Restart App**: Fully close and reopen Better xCloud.
 
 ---
