@@ -5,7 +5,7 @@
 ---
 
 <a name="使用指南-中文"></a>
-## 📖 Better xCloud App 使用指南 (中文)
+## 📖 虚拟按键代码使用指南 (中文)
 
 ### 📌 安装步骤
 
@@ -37,7 +37,7 @@
 ---
 
 <a name="user-guide-english"></a>
-## 📖 User Guide for Better xCloud App (English)
+## 📖 User Guide for Script (English)
 
 ### 📌 How to Install
 
