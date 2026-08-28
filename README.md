@@ -70,4 +70,7 @@
 * **Joystick & Touchpad Modes**: Toggle joysticks to **Touchpad Mode** and fine-tune camera **Sensitivity**.
 * **Combo Keys Setup**: Tap **Add Combo** to trigger multiple buttons (e.g., `LB + RB`) with a single press.
 * **Aspect Ratio Stretch Fix**: Enable **Aspect Ratio Fix** to eliminate screen borders.
-* 
+<img width="2712" height="1220" alt="82723" src="https://github.com/user-attachments/assets/2e770963-3b5b-47b3-9c25-6fb53744c078" />
+<img width="2711" height="1220" alt="82722" src="https://github.com/user-attachments/assets/d3c9a1d6-8470-4926-b9d2-28551ae78423" />
+<img width="2712" height="1220" alt="82703" src="https://github.com/user-attachments/assets/6cacc784-82c7-4267-8ef6-a18b0e305538" />
+
