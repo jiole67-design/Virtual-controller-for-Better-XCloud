@@ -70,9 +70,10 @@
 * **Joystick & Touchpad Modes**: Toggle joysticks to **Touchpad Mode** and fine-tune camera **Sensitivity**.
 * **Combo Keys Setup**: Tap **Add Combo** to trigger multiple buttons (e.g., `LB + RB`) with a single press.
 * **Aspect Ratio Stretch Fix**: Enable **Aspect Ratio Fix** to eliminate screen borders.
-<img width="2712" height="1220" alt="82703" src="https://github.com/user-attachments/assets/b1fe61f3-e1fb-44b4-b395-923c054753c1" />
-<img width="2711" height="1220" alt="82722" src="https://github.com/user-attachments/assets/cc5baaa0-5835-493f-a4dd-9e3f3f9fd50a" /><img width="2712" height="1220" alt="82723" src="https://github.com/user-attachments/assets/22b0a42e-2a5c-4acf-ae70-655c66aef822" />
-![82728](https://github.com/user-attachments/assets/18d709d1-91f6-47a7-9063-63b7865b611e)
+<img width="2712" height="1220" alt="82723" src="https://github.com/user-attachments/assets/de4f49b7-969c-4e57-89f6-0670025dda80" />
+<img width="2712" height="1220" alt="82728" src="https://github.com/user-attachments/assets/eadc1dcb-5ce3-4236-9e90-abae89d5c5b3" />
+<img width="2712" height="1220" alt="82703" src="https://github.com/user-attachments/assets/f71c1584-d080-4afc-a099-3cf9874cfb49" />
+<img width="2711" height="1220" alt="82722" src="https://github.com/user-attachments/assets/3dc7fa25-d43a-4aed-b9ee-76afaf842c05" />
 
 
 
