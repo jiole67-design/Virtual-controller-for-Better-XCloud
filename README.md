@@ -9,7 +9,7 @@
 
 ### 📌 安装步骤
 
-1. **复制脚本代码**：复制代码库中的 `*.user.js` 全文。
+1. **复制脚本代码**：复制代码库中的 `*Better Xcloud script.json` 全文。
 2. **打开 Better xCloud**：启动应用，点击主界面的 **Settings（设置）**。
 3. **添加自定义脚本**：
    * 点击 **Custom Script（自定义脚本）**。
