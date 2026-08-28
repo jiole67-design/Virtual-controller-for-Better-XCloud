@@ -51,7 +51,8 @@
    * **Paste** the copied script code into the text box.
    * Tap **Save**.
 
-   ![Setup Screenshot](https://cdn.phototourl.com/free/2026-08-28-2f879047-c424-4adc-b7d8-43df8b04d325.jpg)
+   ![Setup Screenshot](https://cdn.phototourl.com/free/2026-08-28-2f879047-c424-4adc-b7d8-43df8b04d325.jpg)<img width="1220" height="2638" alt="82692" src="https://github.com/user-attachments/assets/44c44fed-d423-4039-94f8-364c69bd7e0b" />
+
 
 5. **Restart the App**: Fully close/exit the Better xCloud app and reopen it to apply the changes.
 
